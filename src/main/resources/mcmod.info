@@ -1,0 +1,9 @@
+[{
+  "modid": "pridechat",
+  "name": "PrideChat",
+  "description": "A prettier chat: tabs with unread counts, full-colour emojis (Twemoji, CC-BY 4.0) with a picker, @mentions, timestamps, search, player menus, all in the Pride style.",
+  "version": "0.1.0",
+  "mcversion": "1.12.2",
+  "authorList": ["crunkazcanbe"],
+  "credits": "Emoji graphics: Twemoji (CC-BY 4.0). Emoji data: Emojibase (MIT)."
+}]
