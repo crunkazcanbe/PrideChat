@@ -9,7 +9,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle'
 
-version = '0.1.0'
+version = '0.5.0'
 group = 'com.dogpound.pridechat'
 archivesBaseName = 'PrideChat-1.12.2'
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'

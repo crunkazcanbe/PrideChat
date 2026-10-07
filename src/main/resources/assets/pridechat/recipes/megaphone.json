@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  I",
+    "INI",
+    "  I"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "N": {
+      "item": "minecraft:noteblock"
+    }
+  },
+  "result": {
+    "item": "pridechat:megaphone",
+    "count": 1
+  }
+}

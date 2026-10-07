@@ -1,0 +1,12 @@
+itemGroup.pridechat=PrideChat
+item.pridechat.walkie_talkie.name=Walkie-Talkie
+item.pridechat.radio.name=Radio
+item.pridechat.megaphone.name=Megaphone
+item.pridechat.radio_key.name=Radio Encryption Key
+item.pridechat.room_marker.name=Room Marker
+tile.pridechat.radio_tower.name=Radio Tower
+tile.pridechat.satellite_dish.name=Satellite Dish
+tile.pridechat.telephone.name=Telephone
+tile.pridechat.intercom.name=Intercom
+tile.pridechat.speaker.name=Speaker
+tile.pridechat.pa_system.name=PA System

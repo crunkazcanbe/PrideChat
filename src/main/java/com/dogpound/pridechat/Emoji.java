@@ -25,8 +25,10 @@ public final class Emoji {
         public final int index, group;
         public final String unicode, label;
         public final List<String> codes;
-        E(int index, String unicode, String label, int group, List<String> codes) {
-            this.index = index; this.unicode = unicode; this.label = label; this.group = group; this.codes = codes;
+        final int sheet;                                                  // 0 = emoji.png, 1 = emoji_tones.png
+        E(int index, String unicode, String label, int group, List<String> codes) { this(index, unicode, label, group, codes, 0); }
+        E(int index, String unicode, String label, int group, List<String> codes, int sheet) {
+            this.index = index; this.unicode = unicode; this.label = label; this.group = group; this.codes = codes; this.sheet = sheet;
         }
         public String code() { return codes.isEmpty() ? label : codes.get(0); }
     }
@@ -38,6 +40,42 @@ public final class Emoji {
     private static int size = 32, cols = 36, rows = 30, maxChars = 1;
     private static boolean loaded;
     private static final ResourceLocation SHEET = new ResourceLocation(PrideChat.MODID, "textures/emoji.png");
+    private static final ResourceLocation TONE_SHEET = new ResourceLocation(PrideChat.MODID, "textures/emoji_tones.png");
+    private static int tSize = 32, tCols = 40, tRows = 9;
+    /** skin-tone versions of an emoji: [1..5] (light → dark) */
+    static final Map<E, E[]> TONES = new HashMap<>();
+
+    /** the emoji in the skin tone picked in the settings (or itself) */
+    static E toned(E e) {
+        int t = ChatConfig.skinTone;
+        if (e == null || t <= 0 || t > 5) return e;
+        E[] v = TONES.get(e);
+        return v != null && v[t] != null ? v[t] : e;
+    }
+
+    /** skin-tone variants: shortcodes like :wave_tone3: and the real 👋🏽 characters */
+    private static void loadTones() {
+        try (InputStreamReader r = new InputStreamReader(Minecraft.getMinecraft().getResourceManager()
+                .getResource(new ResourceLocation(PrideChat.MODID, "emoji_tones.json")).getInputStream(), StandardCharsets.UTF_8)) {
+            JsonObject root = new JsonParser().parse(r).getAsJsonObject();
+            tSize = root.get("size").getAsInt(); tCols = root.get("cols").getAsInt(); tRows = root.get("rows").getAsInt();
+            JsonArray a = root.getAsJsonArray("tones");
+            for (int i = 0; i < a.size(); i++) {
+                JsonObject o = a.get(i).getAsJsonObject();
+                int bi = o.get("b").getAsInt(), t = o.get("t").getAsInt();
+                if (bi >= ALL.size() || t < 1 || t > 5) continue;
+                E b = ALL.get(bi);
+                List<String> codes = new ArrayList<>();
+                for (String c : b.codes) codes.add(c + "_tone" + t);
+                E e = new E(i, o.get("u").getAsString(), b.label + " (tone " + t + ")", b.group, codes, 1);
+                for (String c : codes) BY_CODE.putIfAbsent(c, e);
+                String key = strip(e.unicode);
+                BY_CHARS.putIfAbsent(key, e);
+                maxChars = Math.max(maxChars, key.length());
+                TONES.computeIfAbsent(b, k -> new E[6])[t] = e;
+            }
+        } catch (Exception ex) { PrideChat.LOG.warn("emoji skin tones couldn't be read: " + ex); }
+    }
 
     static void load() {
         if (loaded) return;
@@ -58,6 +96,7 @@ public final class Emoji {
                 BY_CHARS.putIfAbsent(key, e);
                 maxChars = Math.max(maxChars, key.length());
             }
+            loadTones();
             // a few friendly extra names people type
             alias("heart", "red_heart"); alias("love", "heart"); alias("lol", "joy"); alias("pride", "rainbow_flag"); alias("trans", "transgender_flag");
         } catch (Exception ex) {
@@ -145,6 +184,13 @@ public final class Emoji {
 
     // ------------------------------------------------------------------ drawing
     public static void draw(E e, int x, int y, int px) {
+        if (e.sheet == 1) {
+            Minecraft.getMinecraft().getTextureManager().bindTexture(TONE_SHEET);
+            GlStateManager.enableBlend();
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+            Gui.drawScaledCustomSizeModalRect(x, y, (e.index % tCols) * tSize, (e.index / tCols) * tSize, tSize, tSize, px, px, tCols * tSize, tRows * tSize);
+            return;
+        }
         Minecraft.getMinecraft().getTextureManager().bindTexture(SHEET);
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

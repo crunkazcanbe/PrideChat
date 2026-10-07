@@ -1,0 +1,8 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "side": "pridechat:blocks/pa_system_front",
+    "top": "pridechat:blocks/device_side",
+    "bottom": "pridechat:blocks/device_side"
+  }
+}
